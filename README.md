@@ -2,13 +2,6 @@
 
 I'm an engineer at Goliath Data. We're building software for the physical space.
 
-### Orochi commits
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/orochi-map-dark.svg">
-  <img alt="Contribution map of commits landed through Orochi" src="assets/orochi-map-light.svg">
-</picture>
-
 ### Projects
 
 | Project | What it is |
