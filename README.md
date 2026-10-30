@@ -11,7 +11,7 @@ Every commit I've landed on our monorepo's `main` through Orochi, our own source
   <img alt="Contribution map of commits landed through Orochi" src="assets/orochi-map-light.svg">
 </picture>
 
-<!-- Refresh: node scripts/orochi-map.mjs --repo <monorepo checkout> --out assets -->
+<!-- Refresh: ./refresh.sh -->
 
 ### Projects
 
