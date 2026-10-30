@@ -2,31 +2,16 @@
 
 I build developer infrastructure, ML tooling and the occasional programming language. Lately: a home-grown source control and landing system, ROCm support for Candle, and GitForge, a Git LFS based GitHub alternative.
 
-### Orochi commit map
+### Orochi commits
 
-Orochi is the Rust-based source control system that lands every commit on our monorepo's `main`. Nothing merges through GitHub's button anymore: a PR is proved, landed by Orochi as a squash commit, and only then mirrored back to GitHub.
+Every commit I've landed on our monorepo's `main` through Orochi, our own source control system.
 
-```mermaid
-flowchart LR
-    PR["Pull request<br/>(reviewed, CI green)"] --> Gate{"Merge gate"}
-    Gate -- "can wait" --> Batch["Batch rollup<br/>(every 20 min)"]
-    Gate -- "urgent / protected path" --> Proof
-    Batch --> Proof["Pre-land check<br/>(affected tests on the merged head)"]
-    Proof -- "fails" --> Fix["Back to the author"]
-    Proof -- "passes" --> Land["Orochi lands it<br/>squash commit + PR trailer"]
-    Land --> Main[("main")]
-    Main --> Mirror["Mirrored to GitHub<br/>PR closed with the landed sha"]
-    Main --> Heal["Heal loop<br/>re-tests the tip, bisects a red"]
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/orochi-map-dark.svg">
+  <img alt="Contribution map of commits landed through Orochi" src="assets/orochi-map-light.svg">
+</picture>
 
-How the pieces fit:
-
-```mermaid
-flowchart LR
-    GH["GitHub"] -- ingest --> Server["orochi-server<br/>objects + refs"]
-    Server -- Fetch --> Cache["orochi-cache<br/>read-through cache"]
-    Cache -- Fetch --> Daemon["orochi-daemon<br/>sparse checkout on each node"]
-```
+<!-- Refresh: node scripts/orochi-map.mjs --repo <monorepo checkout> --out assets -->
 
 ### Projects
 
