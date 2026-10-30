@@ -16,6 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Says why a bad token fails without printing it: its kind, its length, and what GitHub answers.
+      - name: Check the token
+        env:
+          TOKEN: ${{ secrets.OROCHI_MAP_TOKEN }}
+        run: |
+          token=$(printf %s "$TOKEN" | tr -d '[:space:]')
+          case "$token" in github_pat_*) kind="fine-grained";; ghp_*) kind="classic";; gho_*) kind="oauth";; *) kind="not a GitHub token";; esac
+          user=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $token" https://api.github.com/user)
+          repo=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $token" https://api.github.com/repos/GoliathData/sourcing)
+          echo "token: $kind, ${#token} chars; /user -> $user; GoliathData/sourcing -> $repo"
+          [ "$repo" = 200 ] || { echo "::error::OROCHI_MAP_TOKEN cannot read GoliathData/sourcing (/user $user, repo $repo)"; exit 1; }
+
       # Commits only, no trees or blobs, from the day Orochi started landing main.
       # The token is trimmed in case it was pasted with a trailing newline.
       - name: Fetch the monorepo's history
