@@ -17,18 +17,25 @@ jobs:
       - uses: actions/checkout@v4
 
       # Commits only, no trees or blobs, from the day Orochi started landing main.
+      # The token is trimmed in case it was pasted with a trailing newline.
       - name: Fetch the monorepo's history
         env:
           TOKEN: ${{ secrets.OROCHI_MAP_TOKEN }}
-        run: >
-          git clone -q --filter=tree:0 --no-checkout --single-branch --branch main
-          --shallow-since=2026-10-21
-          "https://x-access-token:${TOKEN}@github.com/GoliathData/sourcing.git" "$RUNNER_TEMP/sourcing"
+        run: |
+          token=$(printf %s "$TOKEN" | tr -d '[:space:]')
+          auth=$(printf 'x-access-token:%s' "$token" | base64 -w0)
+          echo "::add-mask::$auth"
+          git -c http.extraHeader="Authorization: Basic $auth" clone -q --filter=tree:0 --no-checkout \
+            --single-branch --branch main --shallow-since=2026-10-21 \
+            https://github.com/GoliathData/sourcing.git "$RUNNER_TEMP/sourcing"
+          git -C "$RUNNER_TEMP/sourcing" config http.extraHeader "Authorization: Basic $auth"
 
       - name: Draw the map
         env:
-          GH_TOKEN: ${{ secrets.OROCHI_MAP_TOKEN }}
-        run: node scripts/orochi-map.mjs --repo "$RUNNER_TEMP/sourcing" --out assets
+          TOKEN: ${{ secrets.OROCHI_MAP_TOKEN }}
+        run: |
+          export GH_TOKEN=$(printf %s "$TOKEN" | tr -d '[:space:]')
+          node scripts/orochi-map.mjs --repo "$RUNNER_TEMP/sourcing" --out assets
 
       - name: Push it if it changed
         run: |
